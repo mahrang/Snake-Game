@@ -23,12 +23,24 @@ void Game::Run(Controller &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake);
-    std::thread t1 = std::thread(&Game::Update, this);
-    std::thread t2 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);
+/*  Original code:
+    controller.HandleInput(running, snake); 
+    Update();
+    renderer.Render(snake, food, poison);  
+    
+    Threads:  */
+    std::thread t1 = std::thread(&Controller::HandleInput, std::ref(controller), running, snake);  //gave errors
+    std::thread t2 = std::thread(&Game::Update, this);
+    std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);
     
     t1.join();
     t2.join();
+    t3.join();  
+
+/*  GameLoop() is to act like Intersection::simulate(), TrafficLight::simulate(), and Vehicle::simulate() in the Concurrent Traffic Simulation project.  Now you need to write Controller::GameLoop(), Game::GameLoop(), and Renderer::GameLoop().  We're putting threads in GameLoop() b/c thread t1 gave errors.  We want to see if putting threads in GameLoop() will get rid of the errors in thread t1.  
+    controller.GameLoop(running, snake);
+    GameLoop();
+    renderer.GameLoop(snake, food, poison);  */
 
     frame_end = SDL_GetTicks();
 
@@ -53,15 +65,15 @@ void Game::Run(Controller &controller, Renderer &renderer,
   }
 }
 
-/*  Since placing food or poison follows the same procedure, the function Item::PlaceItem() was created so that only 1 function does that task.  The output will be either food or poison depending on whether Game::PlaceFood() or Game::PlacePoison() call it.
+/*  Since placing food or poison follows the same procedure, the function Item::PlaceItem() was created so that only 1 function does that task.  The output will be either food or poison depending on whether Game::PlaceFood() or Game::PlacePoison() call it. 
 When I tried Item::PlaceItem(Snake const snake), I got an error b/c of
 SnakeCell(x, y)) below.  The function header is
 bool Snake::SnakeCell(int x, int y)
 from line 81 of snake.cpp.  B/c the bool value can change, you can't use const.  */
 SDL_Point Item::PlaceItem(Snake &snake) {
   int x, y;
-  std::mutex mtx;
-  std::unique_lock<std::mutex> lck(mtx);
+  //std::mutex mtx;
+  //std::unique_lock<std::mutex> lck(mtx);
   while (true) {
     x = random_w(engine);
     y = random_h(engine);
@@ -73,7 +85,7 @@ SDL_Point Item::PlaceItem(Snake &snake) {
       return item;
     }
   }
-  lck.unlock();
+  //lck.unlock();
 }
 
 void Game::PlaceFood() { food = item_.PlaceItem(snake); }
@@ -81,8 +93,8 @@ void Game::PlaceFood() { food = item_.PlaceItem(snake); }
 void Game::PlacePoison() { poison = item_.PlaceItem(snake); }
 
 void Game::Update() {
-  std::mutex mtx;
-  std::unique_lock<std::mutex> lck(mtx);
+  //std::mutex mtx;
+  //std::unique_lock<std::mutex> lck(mtx);
   if (!snake.alive) return;
 
   snake.Update();
@@ -110,7 +122,7 @@ void Game::Update() {
     snake.ShrinkBody();
     //lckpoison.unlock();
   }
-  lck.unlock();
+  //lck.unlock();
 }
 
 int Game::GetScore() const { return score; }
