@@ -12,7 +12,7 @@ class Item {
         random_w(0, static_cast<int>(grid_width - 1)),
         random_h(0, static_cast<int>(grid_height - 1)) {}
 
-   SDL_Point PlaceItem(Snake &snake);
+   SDL_Point PlaceItem(std::shared_ptr<Snake> snake);
 
   private:
    SDL_Point item;
