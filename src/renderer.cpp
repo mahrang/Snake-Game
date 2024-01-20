@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include <iostream>
 #include <string>
+#include <mutex>
 
 Renderer::Renderer(const std::size_t screen_width,
                    const std::size_t screen_height,
@@ -38,7 +39,18 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::Render(Snake const &snake, SDL_Point const &food, SDL_Point const &poison) {
+void Renderer::RunThread(std::shared_ptr<Snake> const snake, SDL_Point const &food, SDL_Point const &poison) {
+  /* This compiles, but crashes when I run it.
+  Not using "this" did not compile.
+  Using &snake, &food, &poison did not compile.
+  std::ref(snake), std::ref(food), std::ref(poison) compiled but crashed.
+  std::move(snake), std::move(food), std::move(poison) compiled but crashed.
+  I think I have to use a shared pointer for snake just as done in
+  https://github.com/waelLotfy/CppND-Capstone-Snake-Game/blob/master/src/renderer.cpp  */
+  threads.emplace_back(std::thread(&Renderer::Render, this, snake, food, poison));
+}
+
+void Renderer::Render(std::shared_ptr<Snake> const snake, SDL_Point const &food, SDL_Point const &poison) {
   SDL_Rect block;
   block.w = screen_width / grid_width;
   block.h = screen_height / grid_height;
@@ -49,32 +61,41 @@ void Renderer::Render(Snake const &snake, SDL_Point const &food, SDL_Point const
 
    // Render food
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
+  std::mutex mtxFood;
+  std::unique_lock<std::mutex> lockFood(mtxFood);
   block.x = food.x * block.w;
   block.y = food.y * block.h;
+  lockFood.unlock(); //Unlock the mutex
   SDL_RenderFillRect(sdl_renderer, &block);
 
   // Render poison
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
+  std::mutex mtxPoison;
+  std::unique_lock<std::mutex> lockPoison(mtxPoison);
   block.x = poison.x * block.w;
   block.y = poison.y * block.h;
+  lockPoison.unlock(); //Unlock the mutex
   SDL_RenderFillRect(sdl_renderer, &block);
 
   // Render snake's body
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  for (SDL_Point const &point : snake.body) {
+  std::mutex mtxSnake;
+  std::unique_lock<std::mutex> lockSnake(mtxSnake);
+  for (SDL_Point const &point : snake->body) {
     block.x = point.x * block.w;
     block.y = point.y * block.h;
     SDL_RenderFillRect(sdl_renderer, &block);
   }
 
   // Render snake's head
-  block.x = static_cast<int>(snake.head_x) * block.w;
-  block.y = static_cast<int>(snake.head_y) * block.h;
-  if (snake.alive) {
+  block.x = static_cast<int>(snake->head_x) * block.w;
+  block.y = static_cast<int>(snake->head_y) * block.h;
+  if (snake->alive) {
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x7A, 0xCC, 0xFF);
   } else {
     SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0x00, 0x00, 0xFF);
   }
+  lockSnake.unlock(); //Unlock the mutex
   SDL_RenderFillRect(sdl_renderer, &block);
 
   // Update Screen
