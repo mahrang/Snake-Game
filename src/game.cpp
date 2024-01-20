@@ -4,8 +4,8 @@
 #include <mutex>
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
-    : snake(grid_width, grid_height),
-      item_(grid_width, grid_height) {
+    : snake(std::make_shared<Snake>(grid_width, grid_height)),
+      _item(grid_width, grid_height) {
   PlaceFood();
   PlacePoison();
 }
@@ -24,24 +24,28 @@ void Game::Run(Controller &controller, Renderer &renderer,
 
     // Input, Update, Render - the main game loop.
 /*  Original code:
-    controller.HandleInput(running, snake); 
+    controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, food, poison);  
+    renderer.Render(snake, food, poison);
     
-    Threads:  */
+    Threads:
     std::thread t1 = std::thread(&Controller::HandleInput, std::ref(controller), running, snake);  //gave errors
     std::thread t2 = std::thread(&Game::Update, this);
     std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);
     
     t1.join();
     t2.join();
-    t3.join();  
-
-/*  GameLoop() is to act like Intersection::simulate(), TrafficLight::simulate(), and Vehicle::simulate() in the Concurrent Traffic Simulation project.  Now you need to write Controller::GameLoop(), Game::GameLoop(), and Renderer::GameLoop().  We're putting threads in GameLoop() b/c thread t1 gave errors.  We want to see if putting threads in GameLoop() will get rid of the errors in thread t1.  
-    controller.GameLoop(running, snake);
-    GameLoop();
-    renderer.GameLoop(snake, food, poison);  */
-
+    t3.join();  */
+    
+    controller.HandleInput(running, snake);
+    Update();  //original code
+    //RunThread();  // runs Update in a thread
+    //renderer.Render(snake, food, poison);  //original code
+    //renderer.RunThread(snake, food, poison);  // compiles but crashes
+    //std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);  // this works
+    //t3.join();
+    threads.emplace_back(std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison));  // compiles but crashes
+    
     frame_end = SDL_GetTicks();
 
     // Keep track of how long each loop through the input/update/render cycle
@@ -65,12 +69,12 @@ void Game::Run(Controller &controller, Renderer &renderer,
   }
 }
 
-/*  Since placing food or poison follows the same procedure, the function Item::PlaceItem() was created so that only 1 function does that task.  The output will be either food or poison depending on whether Game::PlaceFood() or Game::PlacePoison() call it. 
+/*  Since placing food or poison follows the same procedure, the function Item::PlaceItem() was created so that only 1 function does that task.  The output will be either food or poison depending on whether Game::PlaceFood() or Game::PlacePoison() call it.
 When I tried Item::PlaceItem(Snake const snake), I got an error b/c of
 SnakeCell(x, y)) below.  The function header is
 bool Snake::SnakeCell(int x, int y)
 from line 81 of snake.cpp.  B/c the bool value can change, you can't use const.  */
-SDL_Point Item::PlaceItem(Snake &snake) {
+SDL_Point Item::PlaceItem(std::shared_ptr<Snake> snake) {
   int x, y;
   //std::mutex mtx;
   //std::unique_lock<std::mutex> lck(mtx);
@@ -79,7 +83,7 @@ SDL_Point Item::PlaceItem(Snake &snake) {
     y = random_h(engine);
     // Check that the location is not occupied by a snake item before placing
     // food.
-    if (!snake.SnakeCell(x, y)) {
+    if (!snake->SnakeCell(x, y)) {
       item.x = x;
       item.y = y;
       return item;
@@ -88,42 +92,48 @@ SDL_Point Item::PlaceItem(Snake &snake) {
   //lck.unlock();
 }
 
-void Game::PlaceFood() { food = item_.PlaceItem(snake); }
+void Game::PlaceFood() { food = _item.PlaceItem(snake); }
 
-void Game::PlacePoison() { poison = item_.PlaceItem(snake); }
+void Game::PlacePoison() { poison = _item.PlaceItem(snake); }
+
+void Game::RunThread() {
+  threads.emplace_back(std::thread(&Game::Update, this));
+}
 
 void Game::Update() {
-  //std::mutex mtx;
-  //std::unique_lock<std::mutex> lck(mtx);
-  if (!snake.alive) return;
+  std::mutex mtxSnake;
+  std::unique_lock<std::mutex> lockSnake(mtxSnake);
+  if (!snake->alive) return;
 
-  snake.Update();
+  snake->Update();
 
-  int new_x = static_cast<int>(snake.head_x);
-  int new_y = static_cast<int>(snake.head_y);
+  int new_x = static_cast<int>(snake->head_x);
+  int new_y = static_cast<int>(snake->head_y);
   
-  //std::unique_lock<std::mutex> lckfood(mtx);
+  std::mutex mtxFood;
+  std::unique_lock<std::mutex> lockFood(mtxFood);
   // Check if there's food over here
   if (food.x == new_x && food.y == new_y) {
     score++;
     PlaceFood();
     // Grow snake and increase speed.
-    snake.GrowBody();
-    snake.speed += 0.02;
+    snake->GrowBody();
+    snake->speed += 0.02;
   }
-  //lckfood.unlock();
-  
+  lockFood.unlock();
+ 
+  std::mutex mtxPoison;
+  std::unique_lock<std::mutex> lockPoison(mtxPoison);
     // Check if there's poison over here
   if (poison.x == new_x && poison.y == new_y) {
-    //std::unique_lock<std::mutex> lckpoison(mtx);
     score--;
     PlacePoison();
     // Shrink snake
-    snake.ShrinkBody();
-    //lckpoison.unlock();
+    snake->ShrinkBody();
   }
-  //lck.unlock();
+  lockPoison.unlock();
+  lockSnake.unlock();
 }
 
 int Game::GetScore() const { return score; }
-int Game::GetSize() const { return snake.size; }
+int Game::GetSize() const { return snake->size; }
