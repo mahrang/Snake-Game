@@ -2,9 +2,10 @@
 #define SNAKE_H
 
 #include <vector>
+#include <thread>
 #include "SDL.h"
 
-class Snake {
+class Snake : public std::enable_shared_from_this<Snake> {
  public:
   enum class Direction { kUp, kDown, kLeft, kRight };
 
