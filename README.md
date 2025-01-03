@@ -1,5 +1,7 @@
 # Snake Game
 
+![Snake_Game4](https://github.com/user-attachments/assets/c9bcc191-08f5-4160-85f4-622410029dc1)
+
 ## Dependencies for Running Locally
 * cmake >= 3.7
   * All OSes: [click here for installation instructions](https://cmake.org/install/)
