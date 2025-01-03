@@ -1,6 +1,6 @@
 # Snake Game
 
-![Snake_Game4](https://github.com/user-attachments/assets/c9bcc191-08f5-4160-85f4-622410029dc1)
+![Snake_Game4_github](https://github.com/user-attachments/assets/c8067e55-a07b-4c80-a9ab-43312be3f7db)
 
 When the snake eats food (yellow square), its body grows, it moves faster, and the player earns 1 point.  When the snake eats poison (red square), its body shrinks but its speed isn't affected, and the player loses 1 point.  Once both the snake's body and head are gone, the score will be -1 and the game will end.
 
