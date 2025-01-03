@@ -2,6 +2,8 @@
 
 ![Snake_Game4](https://github.com/user-attachments/assets/c9bcc191-08f5-4160-85f4-622410029dc1)
 
+When the snake eats food (yellow square), its body grows, it moves faster, and the player earns 1 point.  When the snake eats poison (red square), its body shrinks but its speed isn't affected, and the player loses 1 point.  When the snake's body shrinks to the point where it has no body left and only its head is left, the snake will die if it eats poison, the player will have -1 point, and the game will end.
+
 ## Dependencies for Running Locally
 * cmake >= 3.7
   * All OSes: [click here for installation instructions](https://cmake.org/install/)
