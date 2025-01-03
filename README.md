@@ -2,7 +2,7 @@
 
 ![Snake_Game4](https://github.com/user-attachments/assets/c9bcc191-08f5-4160-85f4-622410029dc1)
 
-When the snake eats food (yellow square), its body grows, it moves faster, and the player earns 1 point.  When the snake eats poison (red square), its body shrinks but its speed isn't affected, and the player loses 1 point.  When the snake's body shrinks to the point where it has no body left and only its head is left, the snake will die if it eats poison, the player will have -1 point, and the game will end.
+When the snake eats food (yellow square), its body grows, it moves faster, and the player earns 1 point.  When the snake eats poison (red square), its body shrinks but its speed isn't affected, and the player loses 1 point.  Once both the snake's body and head are gone, the score will be -1 and the game will end.
 
 ## Dependencies for Running Locally
 * cmake >= 3.7
@@ -42,12 +42,7 @@ This work is licensed under a
 [cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
 
 
-## New feature added to the game
-
-Poison has been added to the game such that, when eaten, the snake's body will shrink by 1 square and score will decrease by 1.  Once both the snake's body and head are gone, the score will be -1 and the game will stop.
-
-
-## rubric points addressed are:
+## project rubric points addressed:
 
 1. Loops, Functions, I/O:  The project demonstrates an understanding of C++ functions and control structures.
     The function Item::PlaceItem() was created in game.cpp at line 79 that uses a while loop and an if statement.  
