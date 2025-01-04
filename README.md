@@ -1,7 +1,5 @@
 # Snake Game
 
-![Snake_Game4_github](https://github.com/user-attachments/assets/f8181368-9f66-4e13-b292-8a3eb12a42e2)
-
 
 https://github.com/user-attachments/assets/c5fac7d9-5d91-47de-b893-f151a8061dc3
 
