@@ -18,17 +18,18 @@ void Game::Run(Controller &controller, Renderer &renderer,
   Uint32 frame_duration;
   int frame_count = 0;
   bool running = true;
+  bool paused = false;
 
   while (running) {
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
 /*  Original code:
-    controller.HandleInput(running, snake); 
+    controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, food, poison);  
+    renderer.Render(snake, food, poison);
     
-    Threads:  
+    Threads:
     std::thread t1 = std::thread(&Controller::HandleInput, std::ref(controller), running, snake);  //gave errors
     std::thread t2 = std::thread(&Game::Update, this);
     std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);
@@ -37,15 +38,17 @@ void Game::Run(Controller &controller, Renderer &renderer,
     t2.join();
     t3.join();  */
     
-	controller.HandleInput(running, snake);  //original code
+    controller.HandleInput(running, paused, snake);
     //Update();  //original code
     //RunThread();  // runs Update in a thread.  Did not replace food.
-    std::thread t2 = std::thread(&Game::Update, this);
-    //renderer.Render(snake, food, poison);  //original code
-    //renderer.RunThread(snake, food, poison);  // compiles but crashes
-    std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);  // this works
-    t2.join();
-    t3.join();
+    if (!paused) {  // if game is not paused, then update
+      std::thread t2 = std::thread(&Game::Update, this);
+      //renderer.Render(snake, food, poison);  //original code
+      //renderer.RunThread(snake, food, poison);  // compiles but crashes
+      std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);  // this works
+      t2.join();
+      t3.join();
+    }
     //threads.emplace_back(std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison));  // compiles but crashes
     
     frame_end = SDL_GetTicks();
@@ -71,7 +74,7 @@ void Game::Run(Controller &controller, Renderer &renderer,
   }
 }
 
-/*  Since placing food or poison follows the same procedure, the function Item::PlaceItem() was created so that only 1 function does that task.  The output will be either food or poison depending on whether Game::PlaceFood() or Game::PlacePoison() call it. 
+/*  Since placing food or poison follows the same procedure, the function Item::PlaceItem() was created so that only 1 function does that task.  The output will be either food or poison depending on whether Game::PlaceFood() or Game::PlacePoison() call it.
 When I tried Item::PlaceItem(Snake const snake), I got an error b/c of
 SnakeCell(x, y)) below.  The function header is
 bool Snake::SnakeCell(int x, int y)
@@ -145,3 +148,4 @@ void Game::Update() {
 
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return snake->size; }
+
