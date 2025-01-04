@@ -5,7 +5,7 @@
 
 class Controller {
  public:
-  void HandleInput(bool &running, std::shared_ptr<Snake> snake) const;
+  void HandleInput(bool &running, bool &paused, std::shared_ptr<Snake> snake) const;
 
  private:
   void ChangeDirection(std::shared_ptr<Snake> snake, Snake::Direction input,
