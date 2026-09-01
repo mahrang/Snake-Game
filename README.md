@@ -42,26 +42,3 @@ This work is licensed under a
 [cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/
 [cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
 [cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
-
-
-## project rubric points addressed:
-
-1. Loops, Functions, I/O:  The project demonstrates an understanding of C++ functions and control structures.
-    The function Item::PlaceItem() was created in game.cpp at line 79 that uses a while loop and an if statement.  
-    A new Game::PlaceFood() function was created in game.cpp at line 97 that calls Item::PlaceItem to place food.
-    The function Game::PlacePoison() was created in game.cpp at line 99.
-    The function Snake::ShrinkBody() was created in snake.cpp at line 82.
-    Inside the function Game::Update() in game.cpp at line 109, I added an if statement from lines 135-141 to check for poison.
-    Inside the function Snake::UpdateBody in snake.cpp at line 50, I added lines to the if-else statement from lines 61-67 to account for shrinking.
-2. Object Oriented Programming:  
-    One or more classes are added to the project with appropriate access specifiers for class members.
-    The class Item was added in item.h at line 8.
-   Also, class Item's constructor uses a member initialization list in item.h at line 10.
-   All class member functions document their effects, either through function names, comments, or formal documentation.
-    In game.cpp at lines 74-78, the comments and function header indicate what the function Item::PlaceItem() does.
-3. Memory Management:  
-    I use pass-by-reference in the function Renderer::Render() in renderer.cpp at line 53.  I passed food and poison to the function as references.
-    Also, I created a shared pointer in game.h line 23.
-4.  Concurrency:  
-    Game::Update() and Renderer::Render() functions are run in threads in game.cpp lines 43-48.
-    Also, mutexes and locks are used in Game::Update() in game.cpp lines 110-111 and 143.
