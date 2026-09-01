@@ -56,11 +56,9 @@ void Game::Run(Controller &controller, Renderer &renderer,
   }
 }
 
-/*  Since placing food or poison follows the same procedure, the function Item::PlaceItem() was created so that only 1 function does that task.  The output will be either food or poison depending on whether Game::PlaceFood() or Game::PlacePoison() call it.
-When I tried Item::PlaceItem(Snake const snake), I got an error b/c of
-SnakeCell(x, y)) below.  The function header is
-bool Snake::SnakeCell(int x, int y)
-from line 81 of snake.cpp.  B/c the bool value can change, you can't use const.  */
+/*  Since placing food or poison follows the same procedure, the function Item::PlaceItem() was created so that
+    only 1 function does that task.  The output will be either food or poison depending on whether
+    Game::PlaceFood() or Game::PlacePoison() calls it. */
 SDL_Point Item::PlaceItem(std::shared_ptr<Snake> snake) {
   int x, y;
   //std::mutex mtx;
