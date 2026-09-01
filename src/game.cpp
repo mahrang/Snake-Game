@@ -29,7 +29,7 @@ void Game::Run(Controller &controller, Renderer &renderer,
 
     if (!paused) {  // if game is not paused, then update
       std::thread t2 = std::thread(&Game::Update, this);
-      std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);  // this works
+      std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);
       t2.join();
       t3.join();
     }
