@@ -26,17 +26,13 @@ void Game::Run(Controller &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
 
     controller.HandleInput(running, paused, snake);
-    //Update();  //original code
-    //RunThread();  // runs Update in a thread.  Did not replace food.
+
     if (!paused) {  // if game is not paused, then update
       std::thread t2 = std::thread(&Game::Update, this);
-      //renderer.Render(snake, food, poison);  //original code
-      //renderer.RunThread(snake, food, poison);  // compiles but crashes
       std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);  // this works
       t2.join();
       t3.join();
     }
-    //threads.emplace_back(std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison));  // compiles but crashes
     
     frame_end = SDL_GetTicks();
 
