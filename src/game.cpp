@@ -24,20 +24,7 @@ void Game::Run(Controller &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-/*  Original code:
-    controller.HandleInput(running, snake);
-    Update();
-    renderer.Render(snake, food, poison);
-    
-    Threads:
-    std::thread t1 = std::thread(&Controller::HandleInput, std::ref(controller), running, snake);  //gave errors
-    std::thread t2 = std::thread(&Game::Update, this);
-    std::thread t3 = std::thread(&Renderer::Render, std::ref(renderer), snake, food, poison);
-    
-    t1.join();
-    t2.join();
-    t3.join();  */
-    
+
     controller.HandleInput(running, paused, snake);
     //Update();  //original code
     //RunThread();  // runs Update in a thread.  Did not replace food.
