@@ -61,20 +61,17 @@ void Game::Run(Controller &controller, Renderer &renderer,
     Game::PlaceFood() or Game::PlacePoison() calls it. */
 SDL_Point Item::PlaceItem(std::shared_ptr<Snake> snake) {
   int x, y;
-  //std::mutex mtx;
-  //std::unique_lock<std::mutex> lck(mtx);
+
   while (true) {
     x = random_w(engine);
     y = random_h(engine);
-    // Check that the location is not occupied by a snake item before placing
-    // food.
+    // Check that the location is not occupied by a snake item before placing food.
     if (!snake->SnakeCell(x, y)) {
       item.x = x;
       item.y = y;
       return item;
     }
   }
-  //lck.unlock();
 }
 
 void Game::PlaceFood() { food = _item.PlaceItem(snake); }
@@ -94,27 +91,19 @@ void Game::Update() {
   std::unique_lock<std::mutex> lockSnake(mtxSnake);
   if (!snake->alive) return;
 
-  snake->Update();  //original code
-  //snake->simulate();  //food doesn't get replaced when you run this
+  snake->Update();
 
   int new_x = static_cast<int>(snake->head_x);
   int new_y = static_cast<int>(snake->head_y);
   
-  //std::mutex mtxFood;
-  //std::unique_lock<std::mutex> lockFood(mtxFood);
   // Check if there's food over here
   if (food.x == new_x && food.y == new_y) {
     score++;
-    PlaceFood();  //original code
-    //SimulateFood();  compiles but crashes
-    // Grow snake and increase speed.
+    PlaceFood();  
     snake->GrowBody();
     snake->speed += 0.02;
   }
-  //lockFood.unlock();
- 
-  //std::mutex mtxPoison;
-  //std::unique_lock<std::mutex> lockPoison(mtxPoison);
+    
     // Check if there's poison over here
   if (poison.x == new_x && poison.y == new_y) {
     score--;
@@ -122,10 +111,8 @@ void Game::Update() {
     // Shrink snake
     snake->ShrinkBody();
   }
-  //lockPoison.unlock();
   lockSnake.unlock();
 }
 
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return snake->size; }
-
